@@ -1,4 +1,4 @@
-package repository.player.impl;
+package repository.sport.impl;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -11,26 +11,25 @@ import java.util.HashSet;
 import java.util.Set;
 
 import conf.databases.DBConstants;
-import domain.player.MedalRecieved;
-import repository.player.MedalRecievedRepository;
+import domain.sport.Venue;
+import repository.sport.VenueRepository;
 
 /**
  * Created by lodz on 2016/04/25.
  */
-public class MedalRecievedRepositoryImpl extends SQLiteOpenHelper implements MedalRecievedRepository{
-
-    public static final String TABLE_NAME = " medalRecieved ";
+public class VenueRepositoryImpl extends SQLiteOpenHelper implements VenueRepository{
+    public static final String TABLE_NAME = " venue ";
     SQLiteDatabase db;
 
     public static final String COLUMN_ID = " id ";
-    public static final String COLUMN_MEDAL = " medal ";
+    public static final String COLUMN_VENUE = " venue ";
 
     public static final String DATABASE_CREATE = " CREATE TABLE "
             + TABLE_NAME + " ( "
             + COLUMN_ID + " TEXT UNIQUE NOT NULL "
-            + COLUMN_MEDAL + " TEXT NOT NULL); ";
+            + COLUMN_VENUE + "TEXT NOT NULL); ";
 
-    public MedalRecievedRepositoryImpl(Context context)
+    public VenueRepositoryImpl(Context context)
     {
         super(context, DBConstants.DATABASE_NAME,null,DBConstants.DATABASE_VERSION);
     }
@@ -39,6 +38,7 @@ public class MedalRecievedRepositoryImpl extends SQLiteOpenHelper implements Med
     {
         db = this.getWritableDatabase();
     }
+
     public void close()
     {
         this.close();
@@ -57,89 +57,85 @@ public class MedalRecievedRepositoryImpl extends SQLiteOpenHelper implements Med
         onCreate(db);
     }
 
-
     @Override
-    public MedalRecieved findByID(Long aLong) {
+    public Venue findByID(Long aLong) {
+        open();
         SQLiteDatabase db = this.getReadableDatabase();
+
         Cursor cursor = db.query(TABLE_NAME,
                 new String[]{COLUMN_ID,
-                COLUMN_MEDAL},
+                        COLUMN_VENUE},
                 COLUMN_ID + " =? ",
                 new String[]{String.valueOf(aLong)},
-                null,
-                null,
-                null);
+                null,null,null);
 
         if(cursor.moveToFirst())
         {
-            final MedalRecieved medalRecieved = new MedalRecieved.Builder()
+            final Venue venue = new Venue.Builder()
                     .setId(cursor.getLong(cursor.getColumnIndex(COLUMN_ID)))
-                    .setNextPosition(cursor.getInt(cursor.getColumnIndex(COLUMN_MEDAL)))
+                    .setVenue(cursor.getString(cursor.getColumnIndex(COLUMN_VENUE)))
                     .build();
-            return medalRecieved;
-
-        }else
-        {
+            return venue;
+        }else {
             return null;
         }
     }
 
     @Override
-    public MedalRecieved save(MedalRecieved entity) {
+    public Venue save(Venue entity) {
         open();
         ContentValues values = new ContentValues();
 
         values.put(COLUMN_ID,entity.getId());
-        values.put(COLUMN_MEDAL,entity.getMedal());
+        values.put(COLUMN_VENUE,entity.getVenue());
 
         long id = db.insertOrThrow(TABLE_NAME,null,values);
 
-        MedalRecieved medalRecieved = new MedalRecieved.Builder()
+        Venue venue = new Venue.Builder()
                 .copy(entity)
                 .setId(new Long(id))
                 .build();
-
-        return medalRecieved;
+        return venue;
     }
 
     @Override
-    public MedalRecieved update(MedalRecieved entity) {
+    public Venue update(Venue entity) {
         open();
         ContentValues values = new ContentValues();
 
         values.put(COLUMN_ID,entity.getId());
-        values.put(COLUMN_MEDAL,entity.getMedal());
+        values.put(COLUMN_VENUE,entity.getVenue());
 
-        db.update(TABLE_NAME, values, COLUMN_ID + " =? ", new String[]{String.valueOf(entity.getId())});
+        db.update(TABLE_NAME,values,COLUMN_ID + " =? ",new String[]{String.valueOf(entity.getId())});
         return entity;
     }
 
     @Override
-    public MedalRecieved delete(MedalRecieved entity) {
+    public Venue delete(Venue entity) {
         open();
-        db.delete(TABLE_NAME,COLUMN_ID + " =? ", new String[]{String.valueOf(entity.getId())});
+        db.delete(TABLE_NAME,COLUMN_ID + " =? ",new String[]{String.valueOf(entity.getId())});
         return entity;
     }
 
     @Override
-    public Set<MedalRecieved> findAll() {
+    public Set<Venue> findAll() {
         SQLiteDatabase db = this.getReadableDatabase();
-        Set<MedalRecieved> medalset = new HashSet<>();
-
+        Set<Venue> venueSet = new HashSet<>();
         open();
         Cursor cursor = db.query(TABLE_NAME,null,null,null,null,null,null);
 
-        if(cursor.moveToFirst()) {
+        if(cursor.moveToFirst())
+        {
             do {
-                MedalRecieved medalRecieved = new MedalRecieved.Builder()
+                Venue venue = new Venue.Builder()
                         .setId(cursor.getLong(cursor.getColumnIndex(COLUMN_ID)))
-                        .setNextPosition(cursor.getInt(cursor.getColumnIndex(COLUMN_MEDAL)))
+                        .setVenue(cursor.getString(cursor.getColumnIndex(COLUMN_VENUE)))
                         .build();
-                medalset.add(medalRecieved);
+                venueSet.add(venue);
             }while (cursor.moveToNext());
         }
 
-            return medalset;
+        return venueSet;
     }
 
     @Override

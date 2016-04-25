@@ -11,26 +11,28 @@ import java.util.HashSet;
 import java.util.Set;
 
 import conf.databases.DBConstants;
-import domain.player.MedalRecieved;
-import repository.player.MedalRecievedRepository;
+import domain.player.Nationality;
+import repository.player.NationalityRepository;
 
 /**
  * Created by lodz on 2016/04/25.
  */
-public class MedalRecievedRepositoryImpl extends SQLiteOpenHelper implements MedalRecievedRepository{
+public class NationalityRepositoryImpl extends SQLiteOpenHelper implements NationalityRepository{
 
-    public static final String TABLE_NAME = " medalRecieved ";
+    public static final String TABLE_NAME = " nationailty ";
     SQLiteDatabase db;
 
     public static final String COLUMN_ID = " id ";
-    public static final String COLUMN_MEDAL = " medal ";
+    public static final String COLUMN_CONTINENT = " continent ";
+    public static final String COLUMN_COUNTRY = " country ";
 
     public static final String DATABASE_CREATE = " CREATE TABLE "
             + TABLE_NAME + " ( "
             + COLUMN_ID + " TEXT UNIQUE NOT NULL "
-            + COLUMN_MEDAL + " TEXT NOT NULL); ";
+            + COLUMN_CONTINENT + " TEXT UNIQUE NOT NULL "
+            + COLUMN_COUNTRY + " TEXT UNIQUE NOT NULL ); ";
 
-    public MedalRecievedRepositoryImpl(Context context)
+    public NationalityRepositoryImpl(Context context)
     {
         super(context, DBConstants.DATABASE_NAME,null,DBConstants.DATABASE_VERSION);
     }
@@ -39,6 +41,7 @@ public class MedalRecievedRepositoryImpl extends SQLiteOpenHelper implements Med
     {
         db = this.getWritableDatabase();
     }
+
     public void close()
     {
         this.close();
@@ -57,13 +60,13 @@ public class MedalRecievedRepositoryImpl extends SQLiteOpenHelper implements Med
         onCreate(db);
     }
 
-
     @Override
-    public MedalRecieved findByID(Long aLong) {
+    public Nationality findByID(Long aLong) {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.query(TABLE_NAME,
                 new String[]{COLUMN_ID,
-                COLUMN_MEDAL},
+                COLUMN_CONTINENT,
+                COLUMN_COUNTRY},
                 COLUMN_ID + " =? ",
                 new String[]{String.valueOf(aLong)},
                 null,
@@ -72,74 +75,79 @@ public class MedalRecievedRepositoryImpl extends SQLiteOpenHelper implements Med
 
         if(cursor.moveToFirst())
         {
-            final MedalRecieved medalRecieved = new MedalRecieved.Builder()
+            final Nationality nationality = new Nationality.Builder()
                     .setId(cursor.getLong(cursor.getColumnIndex(COLUMN_ID)))
-                    .setNextPosition(cursor.getInt(cursor.getColumnIndex(COLUMN_MEDAL)))
+                    .Continent(cursor.getString(cursor.getColumnIndex(COLUMN_CONTINENT)))
+                    .Country(cursor.getString(cursor.getColumnIndex(COLUMN_COUNTRY)))
                     .build();
-            return medalRecieved;
-
-        }else
-        {
+            return nationality;
+        }else {
             return null;
         }
     }
 
     @Override
-    public MedalRecieved save(MedalRecieved entity) {
+    public Nationality save(Nationality entity) {
         open();
         ContentValues values = new ContentValues();
 
         values.put(COLUMN_ID,entity.getId());
-        values.put(COLUMN_MEDAL,entity.getMedal());
+        values.put(COLUMN_CONTINENT,entity.getContinent());
+        values.put(COLUMN_COUNTRY,entity.getCountry());
 
         long id = db.insertOrThrow(TABLE_NAME,null,values);
 
-        MedalRecieved medalRecieved = new MedalRecieved.Builder()
+        Nationality nationality = new Nationality.Builder()
                 .copy(entity)
                 .setId(new Long(id))
                 .build();
 
-        return medalRecieved;
+        return nationality;
     }
 
     @Override
-    public MedalRecieved update(MedalRecieved entity) {
+    public Nationality update(Nationality entity) {
         open();
         ContentValues values = new ContentValues();
 
         values.put(COLUMN_ID,entity.getId());
-        values.put(COLUMN_MEDAL,entity.getMedal());
+        values.put(COLUMN_CONTINENT,entity.getContinent());
+        values.put(COLUMN_COUNTRY,entity.getCountry());
 
-        db.update(TABLE_NAME, values, COLUMN_ID + " =? ", new String[]{String.valueOf(entity.getId())});
+        db.update(TABLE_NAME,values,COLUMN_ID + " =? ",new String[]{String.valueOf(entity.getId())});
+
         return entity;
     }
 
     @Override
-    public MedalRecieved delete(MedalRecieved entity) {
+    public Nationality delete(Nationality entity) {
         open();
-        db.delete(TABLE_NAME,COLUMN_ID + " =? ", new String[]{String.valueOf(entity.getId())});
+        db.delete(TABLE_NAME,COLUMN_ID + " =? ",new String[]{String.valueOf(entity.getId())});
+
         return entity;
     }
 
     @Override
-    public Set<MedalRecieved> findAll() {
+    public Set<Nationality> findAll() {
         SQLiteDatabase db = this.getReadableDatabase();
-        Set<MedalRecieved> medalset = new HashSet<>();
+        Set<Nationality> nationalitySet = new HashSet<>();
 
         open();
-        Cursor cursor = db.query(TABLE_NAME,null,null,null,null,null,null);
+        Cursor cursor = db.query(TABLE_NAME, null, null, null, null, null, null);
 
-        if(cursor.moveToFirst()) {
+        if(cursor.moveToFirst())
+        {
             do {
-                MedalRecieved medalRecieved = new MedalRecieved.Builder()
+                Nationality nationality = new Nationality.Builder()
                         .setId(cursor.getLong(cursor.getColumnIndex(COLUMN_ID)))
-                        .setNextPosition(cursor.getInt(cursor.getColumnIndex(COLUMN_MEDAL)))
+                        .Continent(cursor.getString(cursor.getColumnIndex(COLUMN_CONTINENT)))
+                        .Country(cursor.getString(cursor.getColumnIndex(COLUMN_COUNTRY)))
                         .build();
-                medalset.add(medalRecieved);
-            }while (cursor.moveToNext());
-        }
+                nationalitySet.add(nationality);
 
-            return medalset;
+            }while(cursor.moveToNext());
+        }
+        return nationalitySet;
     }
 
     @Override

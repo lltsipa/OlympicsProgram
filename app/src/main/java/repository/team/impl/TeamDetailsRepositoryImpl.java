@@ -1,4 +1,4 @@
-package repository.player.impl;
+package repository.team.impl;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -11,33 +11,34 @@ import java.util.HashSet;
 import java.util.Set;
 
 import conf.databases.DBConstants;
-import domain.player.MedalRecieved;
-import repository.player.MedalRecievedRepository;
+import domain.team.TeamDetails;
+import repository.team.TeamDetailsRepository;
 
 /**
  * Created by lodz on 2016/04/25.
  */
-public class MedalRecievedRepositoryImpl extends SQLiteOpenHelper implements MedalRecievedRepository{
-
-    public static final String TABLE_NAME = " medalRecieved ";
+public class TeamDetailsRepositoryImpl extends SQLiteOpenHelper implements TeamDetailsRepository{
+    public static final String TABLE_NAME = " teamDetails ";
     SQLiteDatabase db;
 
     public static final String COLUMN_ID = " id ";
-    public static final String COLUMN_MEDAL = " medal ";
+    public static final String COLUMN_ESTABLISHED = " established ";
+    public static final String COLUMN_APPEARANCES = " appearances ";
 
     public static final String DATABASE_CREATE = " CREATE TABLE "
             + TABLE_NAME + " ( "
             + COLUMN_ID + " TEXT UNIQUE NOT NULL "
-            + COLUMN_MEDAL + " TEXT NOT NULL); ";
+            + COLUMN_ESTABLISHED + " TEXT NOT NULL "
+            + COLUMN_APPEARANCES + " TEXT NOT NULL); ";
 
-    public MedalRecievedRepositoryImpl(Context context)
+    public TeamDetailsRepositoryImpl(Context context)
     {
-        super(context, DBConstants.DATABASE_NAME,null,DBConstants.DATABASE_VERSION);
+        super(context, DBConstants.DATABASE_NAME,null, DBConstants.DATABASE_VERSION);
     }
 
     public void open()
     {
-        db = this.getWritableDatabase();
+        db = this.getReadableDatabase();
     }
     public void close()
     {
@@ -57,13 +58,15 @@ public class MedalRecievedRepositoryImpl extends SQLiteOpenHelper implements Med
         onCreate(db);
     }
 
-
     @Override
-    public MedalRecieved findByID(Long aLong) {
+    public TeamDetails findByID(Long aLong) {
+        open();
         SQLiteDatabase db = this.getReadableDatabase();
+
         Cursor cursor = db.query(TABLE_NAME,
                 new String[]{COLUMN_ID,
-                COLUMN_MEDAL},
+                COLUMN_ESTABLISHED,
+                COLUMN_APPEARANCES},
                 COLUMN_ID + " =? ",
                 new String[]{String.valueOf(aLong)},
                 null,
@@ -72,74 +75,79 @@ public class MedalRecievedRepositoryImpl extends SQLiteOpenHelper implements Med
 
         if(cursor.moveToFirst())
         {
-            final MedalRecieved medalRecieved = new MedalRecieved.Builder()
+            final TeamDetails teamDetails = new TeamDetails.Builder()
                     .setId(cursor.getLong(cursor.getColumnIndex(COLUMN_ID)))
-                    .setNextPosition(cursor.getInt(cursor.getColumnIndex(COLUMN_MEDAL)))
+                    .established(cursor.getString(cursor.getColumnIndex(COLUMN_ESTABLISHED)))
+                    .appearances(cursor.getString(cursor.getColumnIndex(COLUMN_APPEARANCES)))
                     .build();
-            return medalRecieved;
-
-        }else
-        {
+            return teamDetails;
+        }else {
             return null;
         }
     }
 
     @Override
-    public MedalRecieved save(MedalRecieved entity) {
+    public TeamDetails save(TeamDetails entity) {
         open();
         ContentValues values = new ContentValues();
 
         values.put(COLUMN_ID,entity.getId());
-        values.put(COLUMN_MEDAL,entity.getMedal());
+        values.put(COLUMN_ESTABLISHED,entity.getEstablished());
+        values.put(COLUMN_APPEARANCES,entity.getAppearances());
 
         long id = db.insertOrThrow(TABLE_NAME,null,values);
 
-        MedalRecieved medalRecieved = new MedalRecieved.Builder()
+        TeamDetails teamDetails = new TeamDetails.Builder()
                 .copy(entity)
                 .setId(new Long(id))
                 .build();
 
-        return medalRecieved;
+        return teamDetails;
     }
 
     @Override
-    public MedalRecieved update(MedalRecieved entity) {
+    public TeamDetails update(TeamDetails entity) {
         open();
         ContentValues values = new ContentValues();
 
         values.put(COLUMN_ID,entity.getId());
-        values.put(COLUMN_MEDAL,entity.getMedal());
+        values.put(COLUMN_ESTABLISHED,entity.getEstablished());
+        values.put(COLUMN_APPEARANCES,entity.getAppearances());
 
-        db.update(TABLE_NAME, values, COLUMN_ID + " =? ", new String[]{String.valueOf(entity.getId())});
+        db.update(TABLE_NAME,values,COLUMN_ID + " =? ",new String[]{String.valueOf(entity.getId())});
+
         return entity;
     }
 
     @Override
-    public MedalRecieved delete(MedalRecieved entity) {
+    public TeamDetails delete(TeamDetails entity) {
         open();
-        db.delete(TABLE_NAME,COLUMN_ID + " =? ", new String[]{String.valueOf(entity.getId())});
+        db.delete(TABLE_NAME,COLUMN_ID + " =? ",new String[]{String.valueOf(entity.getId())});
+
         return entity;
     }
 
     @Override
-    public Set<MedalRecieved> findAll() {
+    public Set<TeamDetails> findAll() {
+
         SQLiteDatabase db = this.getReadableDatabase();
-        Set<MedalRecieved> medalset = new HashSet<>();
+        Set<TeamDetails> teamDetailsSet = new HashSet<>();
 
         open();
         Cursor cursor = db.query(TABLE_NAME,null,null,null,null,null,null);
 
-        if(cursor.moveToFirst()) {
+        if(cursor.moveToFirst())
+        {
             do {
-                MedalRecieved medalRecieved = new MedalRecieved.Builder()
+                TeamDetails teamDetails = new TeamDetails.Builder()
                         .setId(cursor.getLong(cursor.getColumnIndex(COLUMN_ID)))
-                        .setNextPosition(cursor.getInt(cursor.getColumnIndex(COLUMN_MEDAL)))
+                        .established(cursor.getString(cursor.getColumnIndex(COLUMN_ESTABLISHED)))
+                        .appearances(cursor.getString(cursor.getColumnIndex(COLUMN_APPEARANCES)))
                         .build();
-                medalset.add(medalRecieved);
+                teamDetailsSet.add(teamDetails);
             }while (cursor.moveToNext());
         }
-
-            return medalset;
+        return teamDetailsSet;
     }
 
     @Override
