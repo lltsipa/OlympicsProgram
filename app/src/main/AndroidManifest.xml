@@ -18,6 +18,69 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service
+            android:name="services.CatagoryService"
+            android:exported="false" >
+        </service>
+        <service
+            android:name="services.player.impl.MedalRecievedServiceImpl"
+            android:exported="false" >
+        </service>
+        <service
+            android:name="services.player.impl.NationalityServiceImpl"
+            android:exported="false" >
+        </service>
+        <service
+            android:name="services.player.impl.PlayerServiceImpl"
+            android:exported="false" >
+        </service>
+        <service
+            android:name="services.player.impl.PlayerStatsServiceImpl"
+            android:exported="false" >
+        </service>
+        <service
+            android:name="services.SportService"
+            android:exported="false" >
+        </service>
+        <service
+            android:name="services.sport.impl.VenueServiceImpl"
+            android:exported="false" >
+        </service>
+        <service
+            android:name="services.team.TeamDetailsService"
+            android:exported="false" >
+        </service>
+        <service
+            android:name="services.team.TeamStatsService"
+            android:exported="false" >
+        </service>
+        <service
+            android:name="services.sport.MyIntentService"
+            android:exported="false" >
+        </service>
+        <service
+            android:name="services.sport.impl.MyIntentService"
+            android:exported="false" >
+        </service>
+        <service
+            android:name="services.sport.impl.SportServiceImpl"
+            android:exported="false" >
+        </service>
+        <service
+            android:name="services.sport.impl.FixtureServiceImpl"
+            android:exported="false" >
+        </service>
+        <service
+            android:name="services.team.TeamStataServiceImpl"
+            android:exported="false" >
+        </service>
+
+        <activity
+            android:name=".Player_Activity"
+            android:label="@string/title_activity_player_"
+            android:theme="@style/AppTheme.NoActionBar" >
+        </activity>
     </application>
 
 </manifest>

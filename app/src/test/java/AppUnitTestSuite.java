@@ -3,7 +3,7 @@ import org.junit.runners.Suite;
 
 
 
-import factories.playerFactory.MedalRecievedFactory;
+import factories.playerfactory.MedalRecievedFactory;
 import factoryTest.playerFactoryTest.CatagoryFactoryTest;
 import factoryTest.playerFactoryTest.NationalityFactoryTest;
 import factoryTest.playerFactoryTest.PlayerStatsFactoryTest;
